@@ -1,13 +1,13 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace SmartMailbox.Inputs
+namespace SmartMailbox
 {
-    interface IImageProvider
+    struct Classification
     {
-        string TakeImage();
+        public bool isSpam { get; private set; }
     }
 }
