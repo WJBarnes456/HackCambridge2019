@@ -26,7 +26,7 @@ using System.Xml.Linq;
 //For fancy formatting, it's gotta be FormatWith
 namespace SmartMailbox.Outputs
 {
-    class EmailOutput : IOutput
+    class EmailOutput : IOutputComponent
     {
         static void SendSpam(string subject, string summary, string image)
         {
@@ -35,11 +35,6 @@ namespace SmartMailbox.Outputs
         static void SendReal(string subject, string summary, string image)
         {
             new EmailSystem().SendSmartboxEmail(image, @"<p>" + summary + @"</p><img src=""cid:{0}"">", subject);
-        }
-        static void Main(string[] args)
-        {
-            SendReal("Lidl", "Very cheap banans: 1kg for 3 pounds", "lidl.jpg");
-            SendSpam("Lidl", "Very cheap banans: 1kg for 3 pounds", "lidl.jpg");
         }
     }
 

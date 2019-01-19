@@ -18,7 +18,8 @@ namespace SmartMailbox
         static void Main(string[] args)
         {
             analyser = new AzureAnalyser();
-
+            Classification c = analyser.ClassifyImage(@"C:\Users\alanm\Pictures\Camera Roll\ff.jpg");
+            Console.WriteLine(c.isSpam);
         }
     }
 }
