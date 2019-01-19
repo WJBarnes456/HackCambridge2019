@@ -26,20 +26,31 @@ using System.Xml.Linq;
 //For fancy formatting, it's gotta be FormatWith
 namespace SmartMailbox.Outputs
 {
-    class EmailOutput : IOutput
+    class EmailOutput : IOutputComponent
     {
-        static void SendSpam(string subject, string summary, string image)
+        private EmailSystem emailSystem = new EmailSystem();
+
+        void SendSpam(string subject, string summary, string image)
         {
-            new EmailSystem().SendSmartboxEmail(image, @"<p>" + summary + @"</p><img src=""cid:{0}"">", "SPAM from " + subject);
+            emailSystem.SendSmartboxEmail(image, @"<p>" + summary + @"</p><img src=""cid:{0}"">", "SPAM from " + subject);
         }
-        static void SendReal(string subject, string summary, string image)
+
+        void SendReal(string subject, string summary, string image)
         {
-            new EmailSystem().SendSmartboxEmail(image, @"<p>" + summary + @"</p><img src=""cid:{0}"">", subject);
+            emailSystem.SendSmartboxEmail(image, @"<p>" + summary + @"</p><img src=""cid:{0}"">", subject);
         }
+
+        public void HandleClassification(Classification c)
+        {
+            //TODO: Write handling code
+        }
+
         static void Main(string[] args)
         {
-            SendReal("Lidl", "Very cheap banans: 1kg for 3 pounds", "lidl.jpg");
-            SendSpam("Lidl", "Very cheap banans: 1kg for 3 pounds", "lidl.jpg");
+            EmailOutput output = new EmailOutput();
+
+            output.SendReal("Lidl", "Very cheap banans: 1kg for 3 pounds", "lidl.jpg");
+            output.SendSpam("Lidl", "Very cheap banans: 1kg for 3 pounds", "lidl.jpg");
         }
     }
 
