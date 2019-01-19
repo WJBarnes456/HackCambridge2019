@@ -17,8 +17,9 @@ namespace SmartMailbox
 
         static void Main(string[] args)
         {
-            analyser = new AzureAnalyser();
-
+            provider = new ShellImageProvider();
+            string filename = provider.TakeImage();
+            Console.WriteLine("File output at " + filename);
         }
     }
 }

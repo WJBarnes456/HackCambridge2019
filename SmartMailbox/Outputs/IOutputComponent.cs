@@ -8,5 +8,6 @@ namespace SmartMailbox.Outputs
 {
     interface IOutputComponent
     {
+        //void HandleClassification(Classification c);
     }
 }

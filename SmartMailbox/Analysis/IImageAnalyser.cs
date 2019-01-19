@@ -8,6 +8,6 @@ namespace SmartMailbox.Analysis
 {
     interface IImageAnalyser
     {
-        Classification ClassifyImage(string filePath);
+        //Classification ClassifyImage(string filePath);
     }
 }

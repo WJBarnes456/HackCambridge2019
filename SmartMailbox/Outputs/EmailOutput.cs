@@ -40,18 +40,10 @@ namespace SmartMailbox.Outputs
             emailSystem.SendSmartboxEmail(image, @"<p>" + summary + @"</p><img src=""cid:{0}"">", subject);
         }
 
-        public void HandleClassification(Classification c)
-        {
+        //public void HandleClassification(Classification c)
+        //{
             //TODO: Write handling code
-        }
-
-        static void Main(string[] args)
-        {
-            EmailOutput output = new EmailOutput();
-
-            output.SendReal("Lidl", "Very cheap banans: 1kg for 3 pounds", "lidl.jpg");
-            output.SendSpam("Lidl", "Very cheap banans: 1kg for 3 pounds", "lidl.jpg");
-        }
+        //}
     }
 
     class EmailSystem : IDisposable
