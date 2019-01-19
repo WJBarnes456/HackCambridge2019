@@ -19,7 +19,9 @@ namespace SmartMailbox
         {
             provider = new ShellImageProvider();
             string filename = provider.TakeImage();
-            Console.WriteLine("File output at " + filename);
+            analyser = new AzureAnalyser();
+            Classification c = analyser.ClassifyImage(filename);
+            Console.WriteLine(c.isSpam);
         }
     }
 }

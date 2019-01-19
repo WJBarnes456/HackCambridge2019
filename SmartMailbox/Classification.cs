@@ -6,8 +6,8 @@ using System.Threading.Tasks;
 
 namespace SmartMailbox
 {
-    struct Classification
+    public struct Classification
     {
-        public bool isSpam { get; private set; }
+        public bool isSpam { get;  set; }
     }
 }
