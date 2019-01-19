@@ -39,7 +39,7 @@ namespace SmartMailbox.Analysis
                     content.Headers.ContentType = new MediaTypeHeaderValue("application/octet-stream");
                     response = await client.PostAsync(url, content);
                     String jsonRet = await response.Content.ReadAsStringAsync();
-                    Newtonsoft.Json.Linq.JObject jObject = Newtonsoft.Json.Linq.JObject.Parse(jsonRet);
+                    JObject jObject = JObject.Parse(jsonRet);
                     Console.WriteLine(jsonRet);
                     foreach (var a in jObject["predictions"])
                     {

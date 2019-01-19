@@ -11,15 +11,21 @@ namespace SmartMailbox
 {
     class Program
     {
-        static private IImageProvider provider;
-        static private IImageAnalyser analyser;
-        static private IOutputComponent[] outputComponents;
+        static IOutputComponent[] GetOutputComponents() {
+            return new IOutputComponent[] { };
+        }
 
         static void Main(string[] args)
         {
-            provider = new ShellImageProvider();
+            IImageProvider provider = new ShellImageProvider();
+            IImageAnalyser analyser = new AzureAnalyser();
+            IOutputComponent[] outputComponents = GetOutputComponents();
+
             string filename = provider.TakeImage();
-            Console.WriteLine("File output at " + filename);
+            Classification classification = analyser.ClassifyImage(filename);
+            Console.WriteLine(classification.isSpam);
+
+            Console.ReadLine();
         }
     }
 }
