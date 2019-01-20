@@ -18,10 +18,10 @@ namespace SmartMailbox.Outputs
         {
             if(classification.isSpam)
             {
-                device.Write(new byte[] { 1 });
+                device.Write(new byte[] { ((byte) 1) });
             } else
             {
-                device.Write(new byte[] { 2 });
+                device.Write(new byte[] { ((byte) 2) });
             }
         }
     }

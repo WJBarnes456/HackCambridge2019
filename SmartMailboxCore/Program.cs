@@ -14,8 +14,15 @@ namespace SmartMailbox
     class Program
     {
         static IOutputComponent[] outputComponents;
+        static IImageProvider provider = new ShellImageProvider();
+        static IImageAnalyser analyser = new AzureAnalyser();
 
-        private static bool isSerialAvailable()
+        static SerialDevice mySer;
+
+        static object runLock = new object();
+        static bool taskRunning = false;
+
+        private static bool IsSerialAvailable()
         {
             var ports = SerialDevice.GetPortNames();
             bool isTTY = false;
@@ -27,51 +34,64 @@ namespace SmartMailbox
                     isTTY = true;
                 }
             }
+
             return isTTY;
         }
 
         static void Main(string[] args)
         {
-            while (!isSerialAvailable())
+            while(!IsSerialAvailable())
             {
-                Console.WriteLine("No ttyUSB0 serial port, retrying in 5 seconds");
+                Console.WriteLine("Serial port not available, waiting 5 seconds");
                 Thread.Sleep(5000);
             }
-
-            Console.WriteLine("Opening serial port");
-            SerialDevice mySer = new SerialDevice("/dev/ttyUSB0", BaudRate.B9600);
-
+            Console.WriteLine("Serial port available, opening");
+            mySer = new SerialDevice("/dev/ttyUSB0", BaudRate.B9600);
             mySer.DataReceived += MySer_DataReceived;
-            mySer.Open();
-
             outputComponents = new IOutputComponent[] { new EmailOutput(), new SerialOutput(mySer) };
-
+            mySer.Open();
             while (!Console.KeyAvailable) ;
-
             mySer.Close();
         }
-
-
+        
         private static void MySer_DataReceived(object arg1, byte[] arg2)
         {
-            if(arg2[0] == 1)
+            Console.WriteLine($"Received: {System.Text.Encoding.UTF8.GetString(arg2)}");
+            if(arg2[0] == 49)
             {
-                string filename;
+                new Task(() =>
                 {
-                    IImageProvider provider = new ShellImageProvider();
+                    lock (runLock)
+                    {
+                        if (taskRunning)
+                        {
+                            return;
+                        }
+                        else
+                        {
+                            taskRunning = true;
+                        }
+                    }
 
-                    filename = provider.TakeImage();
-                    Console.WriteLine("Image taken, filename " + filename);
-                }
+                    string filename;
+                    {
+                        filename = provider.TakeImage();
+                        Console.WriteLine("Image taken, filename " + filename);
+                    }
 
-                IImageAnalyser analyser = new AzureAnalyser();
-                Classification classification = analyser.ClassifyImage(filename);
-                Console.WriteLine(classification);
+                    Classification classification = analyser.ClassifyImage(filename);
+                    Console.WriteLine(classification);
 
-                foreach (IOutputComponent outputComponent in outputComponents)
-                {
-                    outputComponent.HandleClassification(classification);
-                }
+                    foreach (IOutputComponent outputComponent in outputComponents)
+                    {
+                        outputComponent.HandleClassification(classification);
+                    }
+
+                    lock (runLock)
+                    {
+                        taskRunning = false;
+                    }
+                }).Start();
             }
         }
     }
