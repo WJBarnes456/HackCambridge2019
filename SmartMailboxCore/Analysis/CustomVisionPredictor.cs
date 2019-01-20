@@ -23,6 +23,11 @@ namespace SmartMailbox.Analysis
 
         public static async Task<JObject> MakePredictionRequest(string imageFilePath)
         {
+            // Request body. Try this sample with a locally stored image.
+            byte[] byteData = GetImageAsByteArray(imageFilePath);
+
+            Console.WriteLine("Image loaded, loading HttpClient");
+
             var client = new HttpClient();
 
             // Request headers - replace this example key with your valid subscription key.
@@ -33,19 +38,20 @@ namespace SmartMailbox.Analysis
 
             HttpResponseMessage response;
 
-            // Request body. Try this sample with a locally stored image.
-            byte[] byteData = GetImageAsByteArray(imageFilePath);
 
             using (var content = new ByteArrayContent(byteData))
             {
                 content.Headers.ContentType = new MediaTypeHeaderValue("application/octet-stream");
+
+                Console.WriteLine("Sending object to Azure");
                 response = await client.PostAsync(url, content);
+                Console.WriteLine("Object sent, awaiting response");
                 String jsonRet = await response.Content.ReadAsStringAsync();
+
                 JObject jObject = JObject.Parse(jsonRet);
                 Console.WriteLine(jsonRet);
 
                 return jObject;
-                //Console.WriteLine(jObject["predictions"][0]["probability"]);
             }
         }
     }

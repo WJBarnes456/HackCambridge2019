@@ -17,15 +17,19 @@ namespace SmartMailbox
 
         static void Main(string[] args)
         {
-            IImageProvider provider = new MockImageProvider(@"D:\dd.jpg");
-            IImageAnalyser analyser = new AzureAnalyser();
-            IOutputComponent[] outputComponents = GetOutputComponents();
+            string filename;
+            {
+                IImageProvider provider = new ShellImageProvider();
 
-            string filename = provider.TakeImage();
+                filename = provider.TakeImage();
+                Console.WriteLine("Image taken, filename " + filename);
+            }
+
+            IImageAnalyser analyser = new AzureAnalyser();
             Classification classification = analyser.ClassifyImage(filename);
             Console.WriteLine(classification);
 
-            foreach(IOutputComponent outputComponent in outputComponents)
+            foreach(IOutputComponent outputComponent in GetOutputComponents())
             {
                 outputComponent.HandleClassification(classification);
             }
