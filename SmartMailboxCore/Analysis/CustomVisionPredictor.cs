@@ -21,7 +21,7 @@ namespace SmartMailbox.Analysis
             return binaryReader.ReadBytes((int)fileStream.Length);
         }
 
-        public static async Task<JObject[]> MakePredictionRequest(string imageFilePath)
+        public static async Task<APIResult> MakePredictionRequest(string imageFilePath)
         {
             // Request body. Try this sample with a locally stored image.
             byte[] byteData = GetImageAsByteArray(imageFilePath);
@@ -59,7 +59,7 @@ namespace SmartMailbox.Analysis
                 String OCRJsonRet = await OCRtask.Result.Content.ReadAsStringAsync();
                 JObject OCRJObject = JObject.Parse(predictionJsonRet);
 
-                return new JObject[] { predictionJObject, OCRJObject };
+                return new APIResult(imageFilePath, predictionJObject, OCRJObject);
             }
         }
     }
