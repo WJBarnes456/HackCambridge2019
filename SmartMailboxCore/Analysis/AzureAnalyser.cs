@@ -12,8 +12,6 @@ namespace SmartMailbox.Analysis
 {
     public class AzureAnalyser : IImageAnalyser
     {
-        private const string SouthCentralUsEndpoint = "https://southcentralus.api.cognitive.microsoft.com";
-
         private Classification parseObject(string filePath, JObject jObject)
         {
             double spamProb = 0;
