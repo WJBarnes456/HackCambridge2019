@@ -41,14 +41,35 @@ namespace SmartMailbox.Outputs
             emailSystem.SendSmartboxEmail(image, @"<p>" + summary + @"</p><img src=""cid:{0}"">", "Post received: " + subject);
         }
 
+        private string formatDescription(Classification c)
+        {
+            string description = "";
+            if(c.confidence > 0.9)
+            {
+                description = ", it is almost certainly " + c.description;
+            } else if(c.confidence > 0.5)
+            {
+                description = ", it is probably " + c.description;
+            } else if(c.confidence > 0.3)
+            {
+                description = ", we think it is " + c.description;
+            }
+            else if (c.confidence > 0.1)
+            {
+                description = ", it might be " + c.description;
+            }
+
+            return "Image attached" + description;
+        }
+
         public void HandleClassification(Classification c)
         {
             if(c.isSpam)
             {
-                SendSpam(c.mainText, "Image attached, we think it looks like " + c.description, c.imageFileName);
+                SendSpam(c.mainText, formatDescription(c), c.imageFileName);
             } else
             {
-                SendReal(c.mainText, "Image attached, we think it looks like " + c.description, c.imageFileName);
+                SendReal(c.mainText, formatDescription(c), c.imageFileName);
             }
         }
     }

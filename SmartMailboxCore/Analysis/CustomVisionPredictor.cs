@@ -21,7 +21,7 @@ namespace SmartMailbox.Analysis
             return binaryReader.ReadBytes((int)fileStream.Length);
         }
 
-        public static async Task<APIResult> MakePredictionRequest(string imageFilePath)
+        public static async Task<Classification> MakePredictionRequest(string imageFilePath)
         {
             // Request body. Try this sample with a locally stored image.
             byte[] byteData = GetImageAsByteArray(imageFilePath);
@@ -49,18 +49,26 @@ namespace SmartMailbox.Analysis
                 Task<HttpResponseMessage> OCRtask = client.PostAsync(OCRURL, content);
                 Task<HttpResponseMessage>[] tasks = { predictionTask, OCRtask };
 
-                await Task.WhenAll(tasks);
+                Task callTasks = Task.WhenAll(tasks);
+                Task timeout = Task.Delay(30000);
+
+                Task completed = await Task.WhenAny(callTasks, timeout);
                 
-                Console.WriteLine("Object sent, awaiting response");
-                String predictionJsonRet = await predictionTask.Result.Content.ReadAsStringAsync();
-                JObject predictionJObject = JObject.Parse(predictionJsonRet);
-                Console.WriteLine(predictionJsonRet);
+                if(completed == callTasks)
+                {
+                    Console.WriteLine("Object sent, awaiting response");
+                    String predictionJsonRet = await predictionTask.Result.Content.ReadAsStringAsync();
+                    JObject predictionJObject = JObject.Parse(predictionJsonRet);
+                    Console.WriteLine(predictionJsonRet);
 
-                String OCRJsonRet = await OCRtask.Result.Content.ReadAsStringAsync();
-                JObject OCRJObject = JObject.Parse(OCRJsonRet);
-                Console.WriteLine(OCRJsonRet);
-
-                return new APIResult(imageFilePath, predictionJObject, OCRJObject);
+                    String OCRJsonRet = await OCRtask.Result.Content.ReadAsStringAsync();
+                    JObject OCRJObject = JObject.Parse(OCRJsonRet);
+                    Console.WriteLine(OCRJsonRet);
+                    return new APIResult(imageFilePath, predictionJObject, OCRJObject).ToClassification();
+                } else
+                {
+                    return new Classification(false, imageFilePath, "Unknown", "", 0.0);
+                }
             }
         }
     }

@@ -14,10 +14,11 @@ namespace SmartMailbox.Analysis
     {
         
         public Classification ClassifyImage(string filePath) {
-            Task<APIResult> task = CustomVisionPredictor.MakePredictionRequest(filePath);
+            Task<Classification> task = CustomVisionPredictor.MakePredictionRequest(filePath);
             task.Wait();
+            // TODO: Handle exceptions from waiting for the task
             
-            return task.Result.ToClassification();
+            return task.Result;
         }
     }
 

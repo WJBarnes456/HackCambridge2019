@@ -76,7 +76,7 @@ namespace SmartMailbox.Analysis
                 }
             }
 
-            return new Classification(spamProb > 0.5, FilePath, mainText, bestTag);
+            return new Classification(spamProb > 0.5, FilePath, mainText, bestTag, bestTagScore);
         }
     }
 }

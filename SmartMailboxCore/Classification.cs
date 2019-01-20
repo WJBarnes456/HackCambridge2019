@@ -8,12 +8,13 @@ namespace SmartMailbox
 {
     public struct Classification
     {
-        public Classification(bool isSpam, string imageFileName, string mainText, string description)
+        public Classification(bool isSpam, string imageFileName, string mainText, string description, double confidence)
         {
             this.isSpam = isSpam;
             this.imageFileName = imageFileName;
             this.mainText = mainText;
             this.description = description;
+            this.confidence = confidence;
         }
 
         public bool isSpam { get; private set; }
@@ -24,9 +25,11 @@ namespace SmartMailbox
 
         public string description { get; private set; }
 
+        public double confidence { get; private set; }
+
         public override string ToString()
         {
-            return "Classification " + (isSpam ? "" : "NOT ") + "SPAM, fileName=" + imageFileName + ", description=" + description + ", mainText=" + mainText;
+            return "Classification " + (isSpam ? "" : "NOT ") + "SPAM, fileName=" + imageFileName + ", description=" + description + " with confidence " + confidence + ", mainText=" + mainText;
         }
     }
 }

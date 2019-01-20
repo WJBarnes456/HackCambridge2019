@@ -14,7 +14,7 @@ namespace SmartMailbox
     class Program
     {
         static IOutputComponent[] outputComponents = new IOutputComponent[] {};
-        static IImageProvider provider = new MockImageProvider(@"D:\ff.jpg");
+        static IImageProvider provider = new ShellImageProvider();
         static IImageAnalyser analyser = new AzureAnalyser();
 
         static SerialDevice mySer;
