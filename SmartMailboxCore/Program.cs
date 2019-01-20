@@ -13,8 +13,8 @@ namespace SmartMailbox
 {
     class Program
     {
-        static IOutputComponent[] outputComponents;
-        static IImageProvider provider = new ShellImageProvider();
+        static IOutputComponent[] outputComponents = new IOutputComponent[] {};
+        static IImageProvider provider = new MockImageProvider(@"D:\ff.jpg");
         static IImageAnalyser analyser = new AzureAnalyser();
 
         static SerialDevice mySer;
@@ -38,8 +38,27 @@ namespace SmartMailbox
             return isTTY;
         }
 
+        static void Classify()
+        {
+            string filename;
+            {
+                filename = provider.TakeImage();
+                Console.WriteLine("Image taken, filename " + filename);
+            }
+
+            Classification classification = analyser.ClassifyImage(filename);
+            Console.WriteLine(classification);
+
+            foreach (IOutputComponent outputComponent in outputComponents)
+            {
+                outputComponent.HandleClassification(classification);
+            }
+        }
+
         static void Main(string[] args)
         {
+            //Classify();
+            //Console.ReadLine();
             while(!IsSerialAvailable())
             {
                 Console.WriteLine("Serial port not available, waiting 5 seconds");
@@ -73,19 +92,7 @@ namespace SmartMailbox
                         }
                     }
 
-                    string filename;
-                    {
-                        filename = provider.TakeImage();
-                        Console.WriteLine("Image taken, filename " + filename);
-                    }
-
-                    Classification classification = analyser.ClassifyImage(filename);
-                    Console.WriteLine(classification);
-
-                    foreach (IOutputComponent outputComponent in outputComponents)
-                    {
-                        outputComponent.HandleClassification(classification);
-                    }
+                    Classify();
 
                     lock (runLock)
                     {

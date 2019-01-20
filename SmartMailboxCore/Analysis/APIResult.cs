@@ -4,6 +4,8 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
+using System.Linq;
+
 namespace SmartMailbox.Analysis
 {
     class APIResult
@@ -17,6 +19,23 @@ namespace SmartMailbox.Analysis
             this.FilePath = filePath;
             this.PredictionResult = predictionResult;
             this.OCRResult = ocrResult;
+        }
+
+        private int getArea(string boundingBoxString)
+        {
+            if(boundingBoxString == null)
+            {
+                return 0;
+            }
+
+            string[] parts = boundingBoxString.Split(",");
+            if(parts.Length != 4)
+            {
+                return 0;
+            } else
+            {
+                return int.Parse(parts[2]) * int.Parse(parts[3]);
+            }
         }
 
         public Classification ToClassification()
@@ -41,7 +60,23 @@ namespace SmartMailbox.Analysis
                 }
             }
 
-            return new Classification(spamProb > 0.5, FilePath, bestTag);
+            string mainText = "";
+            double bestArea = double.NegativeInfinity;
+
+            foreach (var regionToken in OCRResult["regions"])
+            {
+                foreach(var lineToken in regionToken["lines"])
+                {
+                    int area = getArea(lineToken.Value<string>("boundingbox"));
+                    if(area > bestArea)
+                    {
+                        bestArea = area;
+                        mainText = String.Join(" ", lineToken["words"].Select(x => x.Value<string>("text")));
+                    }
+                }
+            }
+
+            return new Classification(spamProb > 0.5, FilePath, mainText, bestTag);
         }
     }
 }

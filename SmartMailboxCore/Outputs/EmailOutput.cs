@@ -33,22 +33,22 @@ namespace SmartMailbox.Outputs
 
         void SendSpam(string subject, string summary, string image)
         {
-            emailSystem.SendSmartboxEmail(image, @"<p>" + summary + @"</p><img src=""cid:{0}"">", "SPAM from " + subject);
+            emailSystem.SendSmartboxEmail(image, @"<p>" + summary + @"</p><img src=""cid:{0}"">", "SPAM received: " + subject);
         }
 
         void SendReal(string subject, string summary, string image)
         {
-            emailSystem.SendSmartboxEmail(image, @"<p>" + summary + @"</p><img src=""cid:{0}"">", subject);
+            emailSystem.SendSmartboxEmail(image, @"<p>" + summary + @"</p><img src=""cid:{0}"">", "Post received: " + subject);
         }
 
         public void HandleClassification(Classification c)
         {
             if(c.isSpam)
             {
-                SendSpam(c.summary, "Image attached", c.imageFileName);
+                SendSpam(c.mainText, "Image attached, we think it looks like " + c.description, c.imageFileName);
             } else
             {
-                SendReal(c.summary, "Image attached", c.imageFileName);
+                SendReal(c.mainText, "Image attached, we think it looks like " + c.description, c.imageFileName);
             }
         }
     }

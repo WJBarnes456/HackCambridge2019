@@ -57,7 +57,8 @@ namespace SmartMailbox.Analysis
                 Console.WriteLine(predictionJsonRet);
 
                 String OCRJsonRet = await OCRtask.Result.Content.ReadAsStringAsync();
-                JObject OCRJObject = JObject.Parse(predictionJsonRet);
+                JObject OCRJObject = JObject.Parse(OCRJsonRet);
+                Console.WriteLine(OCRJsonRet);
 
                 return new APIResult(imageFilePath, predictionJObject, OCRJObject);
             }
