@@ -37,10 +37,10 @@ namespace SmartMailbox.Analysis
         }
 
         public Classification ClassifyImage(string filePath) {
-            Task<JObject> task = CustomVisionPredictor.MakePredictionRequest(filePath);
+            Task<JObject[]> task = CustomVisionPredictor.MakePredictionRequest(filePath);
             task.Wait();
             
-            return parseObject(filePath, task.Result);
+            return parseObject(filePath, task.Result[0]);
         }
     }
 

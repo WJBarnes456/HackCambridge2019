@@ -21,7 +21,7 @@ namespace SmartMailbox.Analysis
             return binaryReader.ReadBytes((int)fileStream.Length);
         }
 
-        public static async Task<JObject> MakePredictionRequest(string imageFilePath)
+        public static async Task<JObject[]> MakePredictionRequest(string imageFilePath)
         {
             // Request body. Try this sample with a locally stored image.
             byte[] byteData = GetImageAsByteArray(imageFilePath);
@@ -32,11 +32,11 @@ namespace SmartMailbox.Analysis
 
             // Request headers - replace this example key with your valid subscription key.
             client.DefaultRequestHeaders.Add("Prediction-Key", Keys.PredictionKey);
+            client.DefaultRequestHeaders.Add("Ocp-Apim-Subscription-Key", Keys.OCRKey);
 
             // Prediction URL - replace this example URL with your valid prediction URL.
-            string url = Keys.PredictionURL;
-
-            HttpResponseMessage response;
+            string predictionURL = Keys.PredictionURL;
+            string OCRURL = Keys.OCRURL;
 
 
             using (var content = new ByteArrayContent(byteData))
@@ -44,14 +44,22 @@ namespace SmartMailbox.Analysis
                 content.Headers.ContentType = new MediaTypeHeaderValue("application/octet-stream");
 
                 Console.WriteLine("Sending object to Azure");
-                response = await client.PostAsync(url, content);
+
+                Task<HttpResponseMessage> predictionTask = client.PostAsync(predictionURL, content);
+                Task<HttpResponseMessage> OCRtask = client.PostAsync(OCRURL, content);
+                Task<HttpResponseMessage>[] tasks = { predictionTask, OCRtask };
+
+                await Task.WhenAll(tasks);
+                
                 Console.WriteLine("Object sent, awaiting response");
-                String jsonRet = await response.Content.ReadAsStringAsync();
+                String predictionJsonRet = await predictionTask.Result.Content.ReadAsStringAsync();
+                JObject predictionJObject = JObject.Parse(predictionJsonRet);
+                Console.WriteLine(predictionJsonRet);
 
-                JObject jObject = JObject.Parse(jsonRet);
-                Console.WriteLine(jsonRet);
+                String OCRJsonRet = await OCRtask.Result.Content.ReadAsStringAsync();
+                JObject OCRJObject = JObject.Parse(predictionJsonRet);
 
-                return jObject;
+                return new JObject[] { predictionJObject, OCRJObject };
             }
         }
     }
