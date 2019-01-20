@@ -22,6 +22,7 @@ using System.Security;
 
 //We're using an XML document to store our login details, so we need an XML interface.
 using System.Xml.Linq;
+using SmartMailboxCore;
 
 //For fancy formatting, it's gotta be FormatWith
 namespace SmartMailbox.Outputs
@@ -40,10 +41,16 @@ namespace SmartMailbox.Outputs
             emailSystem.SendSmartboxEmail(image, @"<p>" + summary + @"</p><img src=""cid:{0}"">", subject);
         }
 
-        //public void HandleClassification(Classification c)
-        //{
-            //TODO: Write handling code
-        //}
+        public void HandleClassification(Classification c)
+        {
+            if(c.isSpam)
+            {
+                SendSpam(c.summary, "Image attached", c.imageFileName);
+            } else
+            {
+                SendReal(c.summary, "Image attached", c.imageFileName);
+            }
+        }
     }
 
     class EmailSystem : IDisposable
@@ -115,7 +122,7 @@ namespace SmartMailbox.Outputs
             SmtpHostname = "Smtp.gmail.com";//smtpelement.Descendants("Hostname").Single().Value;
             SmtpPort = 587;//int.Parse(smtpelement.Descendants("Port").Single().Value);
             SmtpUsername = "smartmailbox2019";//smtpelement.Descendants("Username").Single().Value;
-            SmtpPassword = "hackcambridge2019";//smtpelement.Descendants("Password").Single().Value;
+            SmtpPassword = Keys.EmailPassword;//smtpelement.Descendants("Password").Single().Value;
             string SmtpName = "Smartbox";//smtpelement.Descendants("DisplayName").Single().Value;
             string SmtpAddress = @"smartmailbox2019@gmail.com";//smtpelement.Descendants("EmailAddress").Single().Value;
             OutAddress = new MailboxAddress(SmtpName, SmtpAddress);
@@ -184,7 +191,7 @@ namespace SmartMailbox.Outputs
 
             builder.HtmlBody = string.Format(HTMLbody, image.ContentId);
             message.From.Add(OutAddress);
-            message.To.Add(new MailboxAddress("Alan Marko", "am2677@cam.ac.uk"));
+            message.To.Add(new MailboxAddress("Will Barnes", Keys.OutputEmail));
             message.Subject = subject;
             message.Body = builder.ToMessageBody();
 

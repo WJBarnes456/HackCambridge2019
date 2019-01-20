@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using System.IO;
 using System.Net.Http;
 using System.Net.Http.Headers;
+using Newtonsoft.Json.Linq;
 
 namespace SmartMailbox.Analysis
 {
@@ -13,14 +14,35 @@ namespace SmartMailbox.Analysis
     {
         private const string SouthCentralUsEndpoint = "https://southcentralus.api.cognitive.microsoft.com";
 
+        private Classification parseObject(string filePath, JObject jObject)
+        {
+            double spamProb = 0;
+            double bestTagScore = Double.NegativeInfinity;
+            string bestTag = "Post";
+
+            foreach (var tagObject in jObject["predictions"])
+            {
+                string tagName = tagObject["tagName"].ToString();
+                double tagScore = double.Parse(tagObject["probability"].ToString());
+
+                if (tagName == "SPAM")
+                {
+                    spamProb = tagScore;
+                } else if (tagName != "OK" && tagScore > bestTagScore)
+                {
+                    bestTag = tagName;
+                    bestTagScore = tagScore;
+                }
+            }
+            
+            return new Classification(spamProb > 0.5, filePath, bestTag);
+        }
+
         public Classification ClassifyImage(string filePath) {
-            Classification cr = new Classification();
-            Task<double> task = CustomVisionPredictor.MakePredictionRequest(filePath);
+            Task<JObject> task = CustomVisionPredictor.MakePredictionRequest(filePath);
             task.Wait();
-            double res = task.Result;
-            if (res> 0.5) cr.isSpam = true;
-            else cr.isSpam = false;
-            return cr;
+            
+            return parseObject(filePath, task.Result);
         }
     }
 
